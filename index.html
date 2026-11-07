@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HabitTrack — полезные привычки</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f7f3;
+    color: #294536;
+}
+
+header {
+    background: white;
+    padding: 22px 6%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px #00000008;
+}
+
+.logo {
+    color: #347b58;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+header span {
+    color: #84958a;
+    font-size: 13px;
+}
+
+.container {
+    max-width: 1050px;
+    margin: 35px auto;
+    padding: 0 20px;
+}
+
+nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+nav button {
+    background: white;
+    color: #557060;
+    padding: 13px 18px;
+    border-radius: 10px;
+    border: 1px solid #e3ebe4;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+nav button.active {
+    background: #347b58;
+    color: white;
+    border-color: #347b58;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+h1 {
+    font-size: 29px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #839489;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 25px;
+}
+
+.card, .panel {
+    background: white;
+    padding: 23px;
+    border-radius: 16px;
+    box-shadow: 0 3px 12px #00000008;
+}
+
+.card h2 {
+    font-size: 30px;
+    color: #347b58;
+    margin-bottom: 7px;
+}
+
+.card p {
+    color: #829187;
+    font-size: 14px;
+}
+
+.panel {
+    margin-bottom: 20px;
+}
+
+.panel h2 {
+    font-size: 20px;
+    margin-bottom: 18px;
+}
+
+input {
+    padding: 13px;
+    border: 1px solid #dce7de;
+    border-radius: 9px;
+    font-size: 14px;
+    outline: none;
+    background: white;
+    color: #294536;
+}
+
+input:focus {
+    border-color: #47966b;
+}
+
+input[type="date"] {
+    cursor: pointer;
+}
+
+form {
+    display: flex;
+    gap: 10px;
+}
+
+form input[type="text"] {
+    flex: 1;
+    min-width: 0;
+}
+
+button {
+    font-family: inherit;
+}
+
+.add-btn {
+    background: #347b58;
+    color: white;
+    border: none;
+    padding: 13px 19px;
+    border-radius: 9px;
+    cursor: pointer;
+}
+
+.add-btn:hover {
+    background: #286443;
+}
+
+.habit {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 4px;
+    border-bottom: 1px solid #edf1ed;
+}
+
+.habit:last-child {
+    border-bottom: none;
+}
+
+.habit input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #347b58;
+    cursor: pointer;
+}
+
+.habit-name {
+    flex: 1;
+    overflow-wrap: anywhere;
+}
+
+.completed {
+    text-decoration: line-through;
+    color: #9aaa9f;
+}
+
+.small-btn {
+    padding: 8px 11px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.edit-btn {
+    background: #eaf2ec;
+    color: #347b58;
+}
+
+.delete-btn {
+    background: #fff0ed;
+    color: #c45e50;
+}
+
+.progress-bg {
+    height: 12px;
+    background: #e9f0e9;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 14px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #47966b;
+    border-radius: 20px;
+    transition: width .3s;
+}
+
+.empty {
+    text-align: center;
+    padding: 25px 5px;
+    color: #94a397;
+}
+
+.date-input {
+    margin-bottom: 18px;
+    max-width: 230px;
+    width: 100%;
+    display: block;
+}
+
+.week-chart {
+    display: flex;
+    align-items: end;
+    justify-content: space-around;
+    gap: 12px;
+    height: 190px;
+    padding-top: 15px;
+    border-bottom: 1px solid #e5ece6;
+}
+
+.chart-column {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: end;
+    gap: 8px;
+    min-width: 0;
+}
+
+.bar-area {
+    width: 100%;
+    height: 135px;
+    display: flex;
+    align-items: end;
+    justify-content: center;
+}
+
+.bar {
+    width: min(36px, 80%);
+    min-height: 3px;
+    background: #69a77f;
+    border-radius: 7px 7px 0 0;
+    transition: height .3s;
+}
+
+.chart-column small {
+    color: #829187;
+    font-size: 11px;
+}
+
+.chart-column strong {
+    font-size: 11px;
+    color: #347b58;
+}
+
+.notice {
+    background: #edf6ef;
+    color: #347b58;
+    padding: 14px;
+    border-radius: 10px;
+    margin-top: 15px;
+    font-size: 13px;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #91a095;
+    font-size: 13px;
+}
+
+@media(max-width: 650px) {
+    header {
+        padding: 18px;
+    }
+
+    .container {
+        margin: 23px auto;
+        padding: 0 13px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .cards .card:last-child {
+        grid-column: span 2;
+    }
+
+    nav {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    nav button {
+        padding: 12px 7px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    form {
+        flex-direction: column;
+    }
+
+    .habit {
+        flex-wrap: wrap;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">🌱 HabitTrack</div>
+    <span>Твой путь к лучшим привычкам</span>
+</header>
+
+<div class="container">
+
+<nav>
+    <button class="active" data-page="home">🏠 Главная</button>
+    <button data-page="habits">✅ Мои привычки</button>
+    <button data-page="calendar">📅 Календарь</button>
+    <button data-page="stats">📊 Статистика</button>
+</nav>
+
+<!-- ГЛАВНАЯ -->
+
+<section id="home" class="page active">
+
+    <h1>Добро пожаловать! 🌿</h1>
+    <p class="subtitle">
+        Каждый день — новая возможность стать лучше.
+        Маленькие шаги приводят к большим результатам!
+    </p>
+
+    <div class="cards">
+        <div class="card">
+            <h2 id="homeTotal">0</h2>
+            <p>Всего привычек</p>
+        </div>
+
+        <div class="card">
+            <h2 id="homeDone">0</h2>
+            <p>Выполнено сегодня</p>
+        </div>
+
+        <div class="card">
+            <h2 id="homePercent">0%</h2>
+            <p>Прогресс за день</p>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Мой прогресс сегодня</h2>
+        <p id="homeProgressText">Выполнено 0 из 0 привычек</p>
+
+        <div class="progress-bg">
+            <div class="progress-fill" id="homeBar"></div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Мои привычки на сегодня</h2>
+        <div id="homeList"></div>
+    </div>
+
+</section>
+
+<!-- МОИ ПРИВЫЧКИ -->
+
+<section id="habits" class="page">
+
+    <h1>Мои привычки ✨</h1>
+    <p class="subtitle">
+        Добавляй полезные действия и отмечай свои достижения.
+    </p>
+
+    <div class="panel">
+        <h2>Добавить новую привычку</h2>
+
+        <form id="habitForm">
+            <input
+                type="text"
+                id="habitInput"
+                placeholder="Например: Читать 20 страниц"
+                maxlength="70"
+                required
+            >
+            <button class="add-btn" type="submit">
+                + Добавить
+            </button>
+        </form>
+    </div>
+
+    <div class="panel">
+        <h2>Список привычек</h2>
+        <label for="habitDate">Дата выполнения:</label>
+        <input type="date" id="habitDate" class="date-input">
+
+        <div id="habitList"></div>
+    </div>
+
+</section>
+
+<!-- КАЛЕНДАРЬ -->
+
+<section id="calendar" class="page">
+
+    <h1>Календарь 📅</h1>
+    <p class="subtitle">
+        Просматривай историю выполнения своих привычек.
+    </p>
+
+    <div class="panel">
+        <h2>Выбери дату</h2>
+        <input type="date" id="calendarDate" class="date-input">
+
+        <div id="calendarResult"></div>
+    </div>
+
+</section>
+
+<!-- СТАТИСТИКА -->
+
+<section id="stats" class="page">
+
+    <h1>Моя статистика 📊</h1>
+    <p class="subtitle">
+        Следи за своими результатами и замечай свой прогресс.
+    </p>
+
+    <div class="cards">
+        <div class="card">
+            <h2 id="statsHabits">0</h2>
+            <p>Всего привычек</p>
+        </div>
+
+        <div class="card">
+            <h2 id="statsDone">0</h2>
+            <p>Всего выполнений</p>
+        </div>
+
+        <div class="card">
+            <h2 id="statsDays">0</h2>
+            <p>Активных дней</p>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Активность за последние 7 дней</h2>
+        <div class="week-chart" id="weekChart"></div>
+    </div>
+
+    <div class="panel">
+        <h2>Общая информация</h2>
+        <p id="statsInfo"></p>
+    </div>
+
+</section>
+
+</div>
+
+<footer>
+    HabitTrack © 2026 | Создано для формирования полезных привычек 🌱
+</footer>
+
+<script>
+
+// ==================================
+// 1. ХРАНЕНИЕ ДАННЫХ
+// ==================================
+
+const STORAGE_KEY = "habitTrackData";
+
+function loadData() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        const data = saved ? JSON.parse(saved) : [];
+
+        if (!Array.isArray(data)) return [];
+
+        return data.filter(h =>
+            h &&
+            typeof h.id === "string" &&
+            typeof h.name === "string" &&
+            h.history &&
+            typeof h.history === "object" &&
+            !Array.isArray(h.history)
+        );
+    } catch {
+        return [];
+    }
+}
+
+let habits = loadData();
+
+function saveData() {
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(habits)
+    );
+}
+
+// ==================================
+// 2. ДАТЫ
+// ==================================
+
+function getToday() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset();
+
+    return new Date(now.getTime() - offset * 60000)
+        .toISOString()
+        .slice(0, 10);
+}
+
+function formatDate(date) {
+    if (!date) return "";
+
+    return new Date(date + "T12:00:00")
+        .toLocaleDateString("ru-RU", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        });
+}
+
+function getLastSevenDays() {
+    const result = [];
+
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setHours(12, 0, 0, 0);
+        date.setDate(date.getDate() - i);
+
+        const offset = date.getTimezoneOffset();
+
+        const key = new Date(
+            date.getTime() - offset * 60000
+        ).toISOString().slice(0, 10);
+
+        result.push(key);
+    }
+
+    return result;
+}
+
+document.getElementById("habitDate").value = getToday();
+document.getElementById("calendarDate").value = getToday();
+
+// ==================================
+// 3. ПЕРЕКЛЮЧЕНИЕ РАЗДЕЛОВ
+// ==================================
+
+const navButtons = document.querySelectorAll("nav button");
+
+navButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        const page = button.dataset.page;
+
+        navButtons.forEach(item =>
+            item.classList.remove("active")
+        );
+
+        button.classList.add("active");
+
+        document.querySelectorAll(".page").forEach(section => {
+            section.classList.remove("active");
+        });
+
+        document.getElementById(page).classList.add("active");
+
+        render();
+    });
+});
+
+// ==================================
+// 4. ДОБАВЛЕНИЕ ПРИВЫЧЕК
+// ==================================
+
+document.getElementById("habitForm")
+.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const input = document.getElementById("habitInput");
+    const name = input.value.trim();
+
+    if (!name) return;
+
+    habits.push({
+        id: crypto.randomUUID(),
+        name: name,
+        history: {}
+    });
+
+    saveData();
+    input.value = "";
+
+    render();
+});
+
+// ==================================
+// 5. УДАЛЕНИЕ И РЕДАКТИРОВАНИЕ
+// ==================================
+
+function editHabit(id) {
+    const habit = habits.find(h => h.id === id);
+
+    if (!habit) return;
+
+    const newName = prompt(
+        "Измени название привычки:",
+        habit.name
+    );
+
+    if (newName === null) return;
+
+    if (!newName.trim()) {
+        alert("Название не может быть пустым!");
+        return;
+    }
+
+    habit.name = newName.trim();
+
+    saveData();
+    render();
+}
+function deleteHabit(id) {
+    if (!confirm("Ты действительно хочешь удалить привычку?")) {
+        return;
+    }
+
+    habits = habits.filter(h => h.id !== id);
+
+    saveData();
+    render();
+}
+
+// ==================================
+// 6. ОТМЕТКА ВЫПОЛНЕНИЯ
+// ==================================
+
+function toggleHabit(id, date, checked) {
+    const habit = habits.find(h => h.id === id);
+
+    if (!habit) return;
+
+    if (checked) {
+        habit.history[date] = true;
+    } else {
+        delete habit.history[date];
+    }
+
+    saveData();
+    render();
+}
+
+// ==================================
+// 7. ОБЩАЯ СТАТИСТИКА ДНЯ
+// ==================================
+
+function getDayStats(date) {
+    const total = habits.length;
+
+    const done = habits.filter(
+        h => h.history[date] === true
+    ).length;
+
+    const percent = total
+        ? Math.round(done / total * 100)
+        : 0;
+
+    return { total, done, percent };
+}
+
+// ==================================
+// 8. СПИСОК ПРИВЫЧЕК
+// ==================================
+
+function renderHabitList() {
+    const list = document.getElementById("habitList");
+    const date = document.getElementById("habitDate").value
+        || getToday();
+
+    list.innerHTML = "";
+
+    if (habits.length === 0) {
+        list.innerHTML =
+            '<div class="empty">🌱 Пока привычек нет. Добавь свою первую!</div>';
+        return;
+    }
+
+    habits.forEach(habit => {
+        const done = habit.history[date] === true;
+
+        const row = document.createElement("div");
+        row.className = "habit";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = done;
+        checkbox.setAttribute("aria-label", "Выполнено");
+
+        checkbox.addEventListener("change", () => {
+            toggleHabit(habit.id, date, checkbox.checked);
+        });
+
+        const name = document.createElement("span");
+        name.className = "habit-name" +
+            (done ? " completed" : "");
+        name.textContent = habit.name;
+
+        const edit = document.createElement("button");
+        edit.className = "small-btn edit-btn";
+        edit.textContent = "Изменить";
+        edit.addEventListener("click", () => editHabit(habit.id));
+
+        const remove = document.createElement("button");
+        remove.className = "small-btn delete-btn";
+        remove.textContent = "Удалить";
+        remove.addEventListener("click", () => deleteHabit(habit.id));
+
+        row.append(checkbox, name, edit, remove);
+        list.appendChild(row);
+    });
+}
+
+// ==================================
+// 9. ГЛАВНАЯ СТРАНИЦА
+// ==================================
+
+function renderHome() {
+    const date = getToday();
+    const stats = getDayStats(date);
+
+    document.getElementById("homeTotal").textContent =
+        stats.total;
+
+    document.getElementById("homeDone").textContent =
+        stats.done;
+
+    document.getElementById("homePercent").textContent =
+        stats.percent + "%";
+
+    document.getElementById("homeProgressText").textContent =
+        `Выполнено ${stats.done} из ${stats.total} привычек`;
+
+    document.getElementById("homeBar").style.width =
+        stats.percent + "%";
+
+    const list = document.getElementById("homeList");
+    list.innerHTML = "";
+
+    if (habits.length === 0) {
+        list.innerHTML =
+            '<div class="empty">Добавь первую привычку в разделе «Мои привычки» 🌱</div>';
+        return;
+    }
+
+    habits.forEach(habit => {
+        const done = habit.history[date] === true;
+
+        const row = document.createElement("div");
+        row.className = "habit";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = done;
+
+        checkbox.addEventListener("change", () => {
+            toggleHabit(habit.id, date, checkbox.checked);
+        });
+
+        const name = document.createElement("span");
+        name.className = "habit-name" +
+            (done ? " completed" : "");
+            name.textContent = habit.name;
+
+        row.append(checkbox, name);
+        list.appendChild(row);
+    });
+}
+
+// ==================================
+// 10. КАЛЕНДАРЬ
+// ==================================
+
+function renderCalendar() {
+    const date = document.getElementById("calendarDate").value
+        || getToday();
+
+    const result = document.getElementById("calendarResult");
+    const stats = getDayStats(date);
+
+    result.innerHTML = "";
+
+    const title = document.createElement("h3");
+    title.textContent = formatDate(date);
+    title.style.marginBottom = "15px";
+
+    result.appendChild(title);
+
+    const summary = document.createElement("p");
+    summary.textContent =
+        `Выполнено ${stats.done} из ${stats.total} привычек (${stats.percent}%)`;
+
+    summary.style.marginBottom = "15px";
+    result.appendChild(summary);
+
+    if (habits.length === 0) {
+        result.innerHTML +=
+            '<div class="empty">Сначала добавь привычки.</div>';
+        return;
+    }
+
+    habits.forEach(habit => {
+        const done = habit.history[date] === true;
+
+        const row = document.createElement("div");
+        row.className = "habit";
+
+        const status = document.createElement("span");
+        status.textContent = done ? "✅ Выполнено" : "○ Не выполнено";
+        status.style.color = done ? "#347b58" : "#84958a";
+
+        const name = document.createElement("span");
+        name.className = "habit-name";
+        name.textContent = habit.name;
+
+        row.append(name, status);
+        result.appendChild(row);
+    });
+}
+
+// ==================================
+// 11. СТАТИСТИКА
+// ==================================
+
+function renderStats() {
+    let totalCompleted = 0;
+    const activeDays = new Set();
+
+    habits.forEach(habit => {
+        Object.entries(habit.history).forEach(([date, done]) => {
+            if (done === true) {
+                totalCompleted++;
+                activeDays.add(date);
+            }
+        });
+    });
+
+    document.getElementById("statsHabits").textContent =
+        habits.length;
+
+    document.getElementById("statsDone").textContent =
+        totalCompleted;
+
+    document.getElementById("statsDays").textContent =
+        activeDays.size;
+
+    const chart = document.getElementById("weekChart");
+    chart.innerHTML = "";
+
+    const days = getLastSevenDays();
+
+    const values = days.map(date => {
+        return habits.filter(h =>
+            h.history[date] === true
+        ).length;
+    });
+
+    const max = Math.max(1, habits.length, ...values);
+
+    days.forEach((date, index) => {
+        const column = document.createElement("div");
+        column.className = "chart-column";
+
+        const value = document.createElement("strong");
+        value.textContent = values[index];
+
+        const area = document.createElement("div");
+        area.className = "bar-area";
+
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        bar.style.height =
+            Math.max(3, values[index] / max * 100) + "%";
+
+        area.appendChild(bar);
+
+        const label = document.createElement("small");
+        label.textContent = new Date(
+            date + "T12:00:00"
+        ).toLocaleDateString("ru-RU", {
+            weekday: "short"
+        });
+
+        column.append(value, area, label);
+        chart.appendChild(column);
+    });
+
+    const info = document.getElementById("statsInfo");
+
+    info.textContent =
+        `За всё время добавлено ${habits.length} привычек. ` +
+        `Выполнено ${totalCompleted} действий. ` +
+        `Зафиксировано ${activeDays.size} активных дней.`;
+}
+
+// ==================================
+// 12. ОБНОВЛЕНИЕ ВСЕХ РАЗДЕЛОВ
+// ==================================
+
+function render() {
+    renderHome();
+    renderHabitList();
+    renderCalendar();
+    renderStats();
+}
+
+// Перерисовка при выборе даты
+document.getElementById("habitDate")
+.addEventListener("change", render);
+
+document.getElementById("calendarDate")
+.addEventListener("change", render);
+// Запуск сайта
+render();
+
+</script>
+
+</body>
+</html>
